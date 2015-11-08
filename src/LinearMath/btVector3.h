@@ -21,6 +21,9 @@ subject to the following restrictions:
 #include "btScalar.h"
 #include "btMinMax.h"
 #include "btAlignedAllocator.h"
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 #ifdef BT_USE_DOUBLE_PRECISION
 #define btVector3Data btVector3DoubleData
@@ -750,6 +753,9 @@ public:
 		return btVector3( dot(v0), dot(v1), dot(v2));
 #endif
     }
+
+	public:
+		const char *ToString();
 };
 
 /**@brief Return the sum of two vectors (Point symantics)*/
@@ -814,7 +820,7 @@ operator-(const btVector3& v)
 #elif defined(BT_USE_NEON)
 	return btVector3((btSimdFloat4)veorq_s32((int32x4_t)v.mVec128, (int32x4_t)btvMzeroMask));
 #else	
-	return btVector3(-v.m_floats[0], -v.m_floats[1], -v.m_floats[2]);
+	return btVector3(0-v.m_floats[0], 0-v.m_floats[1], 0-v.m_floats[2]);
 #endif
 }
 

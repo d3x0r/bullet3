@@ -5,7 +5,7 @@
 btDiscreteDynamicsWorld* world;
 btRigidBody* fallingRigidBody;
 
-void InitDefaultWorld()
+void InitDefaultWorld( bool sloped )
 {
 	{
 		btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -17,8 +17,11 @@ void InitDefaultWorld()
 		world = new btDiscreteDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration );
 	}
 	{
-		btCollisionShape* shape = new btSphereShape( 1 );
-		btCollisionShape* groundShape = new btStaticPlaneShape( btVector3::Zero, btVector3::yAxis );
+		btCollisionShape* groundShape;
+		if( sloped )
+			groundShape = new btStaticPlaneShape( btVector3::Zero, (btVector3::yAxis + btVector3::xAxis).normalize() );
+		else
+			groundShape = new btStaticPlaneShape( btVector3::Zero, btVector3::yAxis );
 
 		btDefaultMotionState* groundMotionState = new btDefaultMotionState();
 
@@ -31,7 +34,7 @@ void InitDefaultWorld()
 
 
 	{
-		btCollisionShape* fallShape = new btBoxShape( btVector3::One );
+		btCollisionShape* fallShape = new btSphereShape( 1 );
 
 		btVector3 origin( 0, 50, 0 );
 		btTransform* init = new btTransform( btQuaternion::Identity, origin );
@@ -53,18 +56,28 @@ void InitDefaultWorld()
 
 }
 
-int main( void )
+int main( int argc, char **argv )
 {
-	InitDefaultWorld();
+	InitDefaultWorld( argc > 1 );
 
 	for( int i = 0; i < 300; i++ ) {
 
+		if( i == 188 )
+		{
+			int a = 3;
+		}
 		world->stepSimulation( 1 / 60.f, 10 );
 
 		btTransform trans;
 		fallingRigidBody->getMotionState()->getWorldTransform( trans );
 
-		std::cout << "sphere height: " << trans.getOrigin().getY() << std::endl;
+		std::cout << "Iteration " << i << std::endl;
+
+		std::cout << trans.ToString( "ball orient\t", "\t\t", "ball origin\t" ) << std::endl;
+		btVector3 v = fallingRigidBody->getAngularVelocity();
+		std::cout << "ball Ang Vel: " << v.ToString() << std::endl;
+		v = fallingRigidBody->getLinearVelocity();
+		std::cout << "ball Lin Vel: " << v.ToString() << std::endl;
 	}
 	int pause;
 	std::cin >> pause;

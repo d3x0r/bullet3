@@ -341,8 +341,11 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher,btCollisio
 			if(m_splitIslands)
 			{ 
 				//filtering for response
-				if (dispatcher->needsResponse(colObj0,colObj1))
-					m_islandmanifold.push_back(manifold);
+				if( dispatcher->needsResponse( colObj0, colObj1 ) )
+				{
+					Dbg( "Add a manifold" );
+					m_islandmanifold.push_back( manifold );
+				}
 			}
 		}
 	}
@@ -367,7 +370,7 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 	{
 		btPersistentManifold** manifold = dispatcher->getInternalManifoldPointer();
 		int maxNumManifolds = dispatcher->getNumManifolds();
-		callback->processIsland(&collisionObjects[0],collisionObjects.size(),manifold,maxNumManifolds, -1);
+		callback->processIsland(&collisionObjects[0],collisionObjects.size(),manifold,0,maxNumManifolds, -1);
 	}
 	else
 	{
@@ -434,7 +437,8 @@ void btSimulationIslandManager::buildAndProcessIslands(btDispatcher* dispatcher,
 
 			if (!islandSleeping)
 			{
-				callback->processIsland(&m_islandBodies[0],m_islandBodies.size(),startManifold,numIslandManifolds, islandId);
+				callback->processIsland(&m_islandBodies[0],m_islandBodies.size(),startManifold
+					,startManifold - &m_islandmanifold[0], numIslandManifolds, islandId);
 	//			printf("Island callback of size:%d bodies, %d manifolds\n",islandBodies.size(),numIslandManifolds);
 			}
 			

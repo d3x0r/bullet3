@@ -125,6 +125,8 @@ void btConvexPlaneCollisionAlgorithm::processCollision (const btCollisionObjectW
 		/// report a contact. internally this will be kept persistent, and contact reduction is done
 		btVector3 normalOnSurfaceB = planeObjWrap->getWorldTransform().getBasis() * planeNormal;
 		btVector3 pOnB = vtxInPlaneWorld;
+		Dbg( "Convex plane adds point " << normalOnSurfaceB.ToString() << " " << vtxInPlaneWorld.ToString() << " " << std::setprecision(12) << distance );
+
 		resultOut->addContactPoint(normalOnSurfaceB,pOnB,distance);
 	}
 

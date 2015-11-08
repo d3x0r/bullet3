@@ -216,6 +216,10 @@ public:
 
 	void	deSerializeFloat(const struct	btTransformFloatData& dataIn);
 
+	public:
+		const char * ToString();
+		const char * ToString( char *name, char *leader, char *orgname );
+
 };
 
 

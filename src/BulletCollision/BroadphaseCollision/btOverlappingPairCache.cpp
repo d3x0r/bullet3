@@ -383,6 +383,7 @@ void	btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 	{
 	
 		btBroadphasePair* pair = &m_overlappingPairArray[i];
+		Dbg( "Process pair " << i );
 		if (callback->processOverlap(*pair))
 		{
 			removeOverlappingPair(pair->m_pProxy0,pair->m_pProxy1,dispatcher);

@@ -1673,4 +1673,63 @@ long _mindot_large_v1( const float *vv, const float *vec, unsigned long count, f
 
 #endif  /* __APPLE__ */
 
+#include "btMatrix3x3.h"
+#include "btTransform.h"
+int char_buf;
+const char *last_result[16];
+
+static std::string str[16];
+
+const char *btVector3::ToString()
+{
+	std::ostringstream oss;
+	char_buf++; char_buf %= 16;
+	oss << "(" << std::setprecision( 12 ) << getX() << "," << std::setprecision( 12 ) << getY() << "," << std::setprecision( 12 ) << getZ() << ")";
+	str[char_buf] = oss.str();
+	return last_result[char_buf] = str[char_buf].c_str();
+}
+
+
+const char *btMatrix3x3::ToString( const char *leader )
+{
+	std::ostringstream oss;
+	char_buf++; char_buf %= 16;
+	oss << m_el[0].ToString() << "\n" << leader << m_el[1].ToString() << "\n" << leader << m_el[2].ToString();
+	str[char_buf] = oss.str();
+	return last_result[char_buf] = str[char_buf].c_str();
+}
+const char *btMatrix3x3::ToString( const char* leadin, const char *leader )
+{
+	std::ostringstream oss;
+	char_buf++; char_buf %= 16;
+	oss << leadin << m_el[0].ToString() << "\n" << leader << m_el[1].ToString() << "\n" << leader << m_el[2].ToString();
+	str[char_buf] = oss.str();
+	return last_result[char_buf] = str[char_buf].c_str();
+}
+
+const char *btMatrix3x3::ToString()
+{
+	std::ostringstream oss;
+	char_buf++; char_buf %= 16;
+	oss << m_el[0].ToString() << "\n" << m_el[1].ToString() << "\n" << m_el[2].ToString();
+	str[char_buf] = oss.str();
+	return last_result[char_buf] = str[char_buf].c_str();
+}
+
+const char * btTransform::ToString()
+{
+	std::ostringstream oss;
+	char_buf++; char_buf %= 16;
+	oss << m_basis.ToString() << "\n" << m_origin.ToString();
+	str[char_buf] = oss.str();
+	return last_result[char_buf] = str[char_buf].c_str();
+}
+const char * btTransform::ToString( char *name, char *leader, char *orgname )
+{
+	std::ostringstream oss;
+	char_buf++; char_buf %= 16;
+	oss << m_basis.ToString( name, leader ) << "\n" << orgname << m_origin.ToString();
+	str[char_buf] = oss.str();
+	return last_result[char_buf] = str[char_buf].c_str();
+}
 

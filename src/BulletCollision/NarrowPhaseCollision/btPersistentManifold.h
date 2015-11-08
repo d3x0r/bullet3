@@ -64,6 +64,7 @@ ATTRIBUTE_ALIGNED128( class) btPersistentManifold : public btTypedObject
 	int	m_cachedPoints;
 
 	btScalar	m_contactBreakingThreshold;
+	btScalar	m_contactBreakingThresholdSquared;
 	btScalar	m_contactProcessingThreshold;
 
 	
@@ -87,8 +88,11 @@ public:
 		: btTypedObject(BT_PERSISTENT_MANIFOLD_TYPE),
 	m_body0(body0),m_body1(body1),m_cachedPoints(0),
 		m_contactBreakingThreshold(contactBreakingThreshold),
+		m_contactBreakingThresholdSquared( contactBreakingThreshold*contactBreakingThreshold ),
 		m_contactProcessingThreshold(contactProcessingThreshold)
 	{
+		Dbg( "breaking contact threshold set to " << std::setprecision(12) << contactBreakingThreshold );
+
 	}
 
 	SIMD_FORCE_INLINE const btCollisionObject* getBody0() const { return m_body0;}
@@ -137,6 +141,8 @@ public:
 	void setContactBreakingThreshold(btScalar contactBreakingThreshold)
 	{
 		m_contactBreakingThreshold = contactBreakingThreshold;
+		Dbg( "breaking contact threshold reset to " << std::setprecision( 12 ) << contactBreakingThreshold );
+		m_contactBreakingThresholdSquared = contactBreakingThreshold*contactBreakingThreshold;
 	}
 
 	void setContactProcessingThreshold(btScalar	contactProcessingThreshold)
@@ -183,8 +189,6 @@ public:
 		btScalar	appliedLateralImpulse1 = m_pointCache[insertIndex].m_appliedImpulseLateral1;
 		btScalar	appliedLateralImpulse2 = m_pointCache[insertIndex].m_appliedImpulseLateral2;
 //		bool isLateralFrictionInitialized = m_pointCache[insertIndex].m_lateralFrictionInitialized;
-		
-		
 			
 		btAssert(lifeTime>=0);
 		void* cache = m_pointCache[insertIndex].m_userPersistentData;
@@ -195,11 +199,11 @@ public:
 		m_pointCache[insertIndex].m_appliedImpulse = appliedImpulse;
 		m_pointCache[insertIndex].m_appliedImpulseLateral1 = appliedLateralImpulse1;
 		m_pointCache[insertIndex].m_appliedImpulseLateral2 = appliedLateralImpulse2;
-		
+#ifdef INCLUDE_DUPLICATE_CODE
 		m_pointCache[insertIndex].m_appliedImpulse =  appliedImpulse;
 		m_pointCache[insertIndex].m_appliedImpulseLateral1 = appliedLateralImpulse1;
 		m_pointCache[insertIndex].m_appliedImpulseLateral2 = appliedLateralImpulse2;
-
+#endif
 
 		m_pointCache[insertIndex].m_lifeTime = lifeTime;
 #else
@@ -212,7 +216,7 @@ public:
 	
 	bool validContactDistance(const btManifoldPoint& pt) const
 	{
-		return pt.m_distance1 <= getContactBreakingThreshold();
+		return pt.m_distance1 <= m_contactBreakingThreshold;
 	}
 	/// calculated new worldspace coordinates and depth, and reject points that exceed the collision margin
 	void	refreshContactPoints(  const btTransform& trA,const btTransform& trB);
@@ -221,6 +225,7 @@ public:
 	SIMD_FORCE_INLINE	void	clearManifold()
 	{
 		int i;
+		Dbg( "Clear manifold point cache" );
 		for (i=0;i<m_cachedPoints;i++)
 		{
 			clearUserCache(m_pointCache[i]);

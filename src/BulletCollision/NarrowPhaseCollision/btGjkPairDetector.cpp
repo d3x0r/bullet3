@@ -143,7 +143,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 
 			btVector3  pWorld = localTransA(pInA);	
 			btVector3  qWorld = localTransB(qInB);
-
+			Dbg( "pWorld is " << pWorld.ToString() << " qWorld is " << qWorld.ToString() );
 
 			if (check2d)
 			{
@@ -173,7 +173,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 			// are we getting any closer ?
 			btScalar f0 = squaredDistance - delta;
 			btScalar f1 = squaredDistance * REL_ERROR2;
-
+			Dbg( "f0 is " << std::setprecision( 12 ) << f0 << " f1 is " << std::setprecision( 12 ) << f1 );
 			if (f0 <= f1)
 			{
 				if (f0 <= btScalar(0.))
@@ -270,6 +270,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 		if (checkSimplex)
 		{
 			m_simplexSolver->compute_points(pointOnA, pointOnB);
+			Dbg( "new simplex points " << pointOnA.ToString() << " and " << pointOnB.ToString() );
 			normalInB = m_cachedSeparatingAxis;
 
 			btScalar lenSqr =m_cachedSeparatingAxis.length2();
@@ -323,7 +324,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 					m_cachedSeparatingAxis, tmpPointOnA, tmpPointOnB,
 					debugDraw
 					);
-
+				Dbg( "points are " << tmpPointOnA.ToString() << " and " << tmpPointOnB.ToString() );
 
 				if (isValid2)
 				{
@@ -411,6 +412,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 					{
 						btScalar distance2 = (tmpPointOnA-tmpPointOnB).length()-margin;
 						//only replace valid distances when the distance is less
+						Dbg( "old distance " << std::setprecision(12) << distance2 << " new distance " << std::setprecision( 12 ) << distance );
 						if (!isValid || (distance2 < distance))
 						{
 							distance = distance2;
@@ -435,7 +437,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 		}
 	}
 
-	
+	Dbg( "Pair detector : valid=" << isValid << " distance=" << std::setprecision( 12 ) << distance << " maxDistance=" << std::setprecision( 12 ) << input.m_maximumDistanceSquared );
 
 	if (isValid && ((distance < 0) || (distance*distance < input.m_maximumDistanceSquared)))
 	{

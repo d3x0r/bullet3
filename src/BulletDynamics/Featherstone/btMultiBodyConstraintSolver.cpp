@@ -99,7 +99,7 @@ btScalar btMultiBodyConstraintSolver::solveGroupCacheFriendlySetup(btCollisionOb
 		}
 	}
 
-	btScalar val = btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup( bodies,numBodies,manifoldPtr, numManifolds, constraints,numConstraints,infoGlobal,debugDrawer);
+	btScalar val = btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup( bodies,numBodies,manifoldPtr, 0, numManifolds, constraints,numConstraints,infoGlobal,debugDrawer);
 
 	return val;
 }
@@ -861,9 +861,9 @@ void btMultiBodyConstraintSolver::convertContacts(btPersistentManifold** manifol
 
 
 
-btScalar btMultiBodyConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer,btDispatcher* dispatcher)
+btScalar btMultiBodyConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifold,int first_manifold, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& info, btIDebugDraw* debugDrawer,btDispatcher* dispatcher)
 {
-	return btSequentialImpulseConstraintSolver::solveGroup(bodies,numBodies,manifold,numManifolds,constraints,numConstraints,info,debugDrawer,dispatcher);
+	return btSequentialImpulseConstraintSolver::solveGroup(bodies,numBodies,manifold,first_manifold,numManifolds,constraints,numConstraints,info,debugDrawer,dispatcher);
 }
 
 #if 0
@@ -1138,7 +1138,7 @@ void  btMultiBodyConstraintSolver::solveMultiBodyGroup(btCollisionObject** bodie
 	m_tmpMultiBodyConstraints = multiBodyConstraints;
 	m_tmpNumMultiBodyConstraints = numMultiBodyConstraints;
 	
-	btSequentialImpulseConstraintSolver::solveGroup(bodies,numBodies,manifold,numManifolds,constraints,numConstraints,info,debugDrawer,dispatcher);
+	btSequentialImpulseConstraintSolver::solveGroup(bodies,numBodies,manifold,numManifolds,0, constraints,numConstraints,info,debugDrawer,dispatcher);
 
 	m_tmpMultiBodyConstraints = 0;
 	m_tmpNumMultiBodyConstraints = 0;

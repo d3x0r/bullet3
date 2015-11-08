@@ -67,7 +67,7 @@ static btSimdScalar gResolveSingleConstraintRowGeneric_scalar_reference(btSolver
 	{
 		c.m_appliedImpulse = sum;
 	}
-
+	Dbg( "Constraint applied impulse is " << std::setprecision( 12 ) << c.m_appliedImpulse );
 	body1.internalApplyImpulse(c.m_contactNormal1*body1.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
 	body2.internalApplyImpulse(c.m_contactNormal2*body2.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
 
@@ -93,6 +93,7 @@ static btSimdScalar gResolveSingleConstraintRowLowerLimit_scalar_reference(btSol
 	{
 		c.m_appliedImpulse = sum;
 	}
+	Dbg( "Constraint applied impulse 2 is " << std::setprecision( 12 ) << c.m_appliedImpulse );
 
 	body1.internalApplyImpulse(c.m_contactNormal1*body1.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
 	body2.internalApplyImpulse(c.m_contactNormal2*body2.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
@@ -624,6 +625,7 @@ btSolverConstraint&	btSequentialImpulseConstraintSolver::addFrictionConstraint(c
 	solverConstraint.m_frictionIndex = frictionIndex;
 	setupFrictionConstraint(solverConstraint, normalAxis, solverBodyIdA, solverBodyIdB, cp, rel_pos1, rel_pos2,
 							colObj0, colObj1, relaxation, desiredVelocity, cfmSlip);
+	Dbg( "Setup Impulse2 = " << std::setprecision( 12 ) << solverConstraint.m_appliedImpulse );
 	return solverConstraint;
 }
 
@@ -944,6 +946,7 @@ void btSequentialImpulseConstraintSolver::setFrictionConstraintImpulse( btSolver
 		if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
 		{
 			frictionConstraint1.m_appliedImpulse = cp.m_appliedImpulseLateral1 * infoGlobal.m_warmstartingFactor;
+			Dbg( "New Applied source is " << std::setprecision( 12 ) << cp.m_appliedImpulseLateral1 );
 			if (rb0)
 				bodyA->internalApplyImpulse(frictionConstraint1.m_contactNormal1*rb0->getInvMass()*rb0->getLinearFactor(),frictionConstraint1.m_angularComponentA,frictionConstraint1.m_appliedImpulse);
 			if (rb1)
@@ -997,6 +1000,7 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 		return;
 
 	int rollingFriction=1;
+	Dbg( "Manifold cache points " << manifold->getNumContacts() );
 	for (int j=0;j<manifold->getNumContacts();j++)
 	{
 
@@ -1034,8 +1038,6 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 			btScalar rel_vel = cp.m_normalWorldOnB.dot(vel);
 
 			setupContactConstraint(solverConstraint, solverBodyIdA, solverBodyIdB, cp, infoGlobal, relaxation, rel_pos1, rel_pos2);
-
-
 
 //			const btVector3& pos1 = cp.getPositionWorldOnA();
 //			const btVector3& pos2 = cp.getPositionWorldOnB();
@@ -1168,7 +1170,7 @@ void btSequentialImpulseConstraintSolver::convertContacts(btPersistentManifold**
 	}
 }
 
-btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
+btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodies, btPersistentManifold** manifoldPtr, int first_manifold, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
 	m_fixedBodyId = -1;
 	BT_PROFILE("solveGroupCacheFriendlySetup");
@@ -1283,6 +1285,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 			if (body->getFlags()&BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY)
 			{
 				gyroForce = body->computeGyroscopicImpulseImplicit_Body(infoGlobal.m_timeStep);
+				Dbg( "Gyroforce " << gyroForce.ToString() );
 				solverBody.m_externalTorqueImpulse += gyroForce;
 
 			}
@@ -1486,7 +1489,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 				currentRow+=m_tmpConstraintSizesPool[i].m_numConstraintRows;
 			}
 		}
-
+		Dbg( "About to convert contacts " << "0" << " " << numManifolds );
 		convertContacts(manifoldPtr,numManifolds,infoGlobal);
 
 	}
@@ -1666,7 +1669,9 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 						solveManifold.m_lowerLimit = -(solveManifold.m_friction*totalImpulse);
 						solveManifold.m_upperLimit = solveManifold.m_friction*totalImpulse;
 
+						Dbg( "PreFriction Impulse?" << std::setprecision( 12 ) << solveManifold.m_appliedImpulse );
 						resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
+						Dbg( "Friction Impulse?" << std::setprecision(12) << solveManifold.m_appliedImpulse );
 					}
 				}
 
@@ -1839,6 +1844,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 		//	float f = m_tmpSolverContactFrictionConstraintPool[solveManifold.m_frictionIndex].m_appliedImpulse;
 			//	printf("pt->m_appliedImpulseLateral1 = %f\n", f);
 			pt->m_appliedImpulseLateral1 = m_tmpSolverContactFrictionConstraintPool[solveManifold.m_frictionIndex].m_appliedImpulse;
+			Dbg( "New manifold source is " << std::setprecision(12) << pt->m_appliedImpulseLateral1 << " from " << solveManifold.m_frictionIndex );
 			//printf("pt->m_appliedImpulseLateral1 = %f\n", pt->m_appliedImpulseLateral1);
 			if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 			{
@@ -1909,13 +1915,13 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 
 
 /// btSequentialImpulseConstraintSolver Sequentially applies impulses
-btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btDispatcher* /*dispatcher*/)
+btScalar btSequentialImpulseConstraintSolver::solveGroup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int first_manifold, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer,btDispatcher* /*dispatcher*/)
 {
 
 	BT_PROFILE("solveGroup");
 	//you need to provide at least some bodies
 
-	solveGroupCacheFriendlySetup( bodies, numBodies, manifoldPtr,  numManifolds,constraints, numConstraints,infoGlobal,debugDrawer);
+	solveGroupCacheFriendlySetup( bodies, numBodies, manifoldPtr, first_manifold, numManifolds,constraints, numConstraints,infoGlobal,debugDrawer);
 
 	solveGroupCacheFriendlyIterations(bodies, numBodies, manifoldPtr,  numManifolds,constraints, numConstraints,infoGlobal,debugDrawer);
 

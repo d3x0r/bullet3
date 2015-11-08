@@ -21,7 +21,14 @@ subject to the following restrictions:
 //Aligned data types not supported in managed code
 #pragma unmanaged
 #endif
+#define DEBUG_INLINE
 
+#ifdef DEBUG_INLINE
+#include <iostream>
+#define Dbg(a)  std::cout << a << std::endl
+#else
+#define Dbg(a)  
+#endif
 
 #include <math.h>
 #include <stdlib.h>//size_t for MSVC 6.0

@@ -1,0 +1,31 @@
+
+btConvexPolyhedron 
+contains
+		public bool IsAlmostZero( ref btVector3 v )
+		
+		
+EPSILON redefined several places
+
+FLT_MAX  - should be a constant from btScalar  (double/float precision)
+-FLT_MAX should be FLT_MIN
+FLT_EPISLON should be SIMD_EPSILON
+
+!! ConvexHullComputer should take the standard list of btVector3 not an abstract double[]/float[] 
+
+!! 1e30 should be replaced with constant
+
+
+------
+BulletCollision/BroadphaseCollision/btBroadphaseProxy.cs
+in  class btBroadphasePairSortPredicate
+
+is this expression...
+
+&& a.m_algorithm > b.m_algorithm
+
+m_algorithm is  "	mutable btCollisionAlgorithm* m_algorithm;"
+
+There's no operator>  for this... so it's just comparing memory address....
+
+is there some table that keeps instances of these algorithms that the order significant?  Or is it better to just   .... ( a.m_algorithm != b.m_algorithm )
+----------

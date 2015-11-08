@@ -187,7 +187,7 @@ int btPersistentManifold::sortCachedPoints(const btManifoldPoint& pt)
 
 int btPersistentManifold::getCacheEntry(const btManifoldPoint& newPoint) const
 {
-	btScalar shortestDist =  getContactBreakingThreshold() * getContactBreakingThreshold();
+	btScalar shortestDist = m_contactBreakingThresholdSquared;
 	int size = getNumContacts();
 	int nearestPoint = -1;
 	for( int i = 0; i < size; i++ )
@@ -283,7 +283,7 @@ void btPersistentManifold::refreshContactPoints(const btTransform& trA,const btT
 			projectedPoint = manifoldPoint.m_positionWorldOnA - manifoldPoint.m_normalWorldOnB * manifoldPoint.m_distance1;
 			projectedDifference = manifoldPoint.m_positionWorldOnB - projectedPoint;
 			distance2d = projectedDifference.dot(projectedDifference);
-			if (distance2d  > getContactBreakingThreshold()*getContactBreakingThreshold() )
+			if (distance2d  > m_contactBreakingThresholdSquared )
 			{
 				removeContactPoint(i);
 			} else

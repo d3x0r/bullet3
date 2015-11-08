@@ -96,7 +96,7 @@ bool	btVoronoiSimplexSolver::updateClosestVectorAndPoints()
 
 		m_needsUpdate = false;
 
-		switch (numVertices())
+		switch ( m_numVertices )
 		{
 		case 0:
 				m_cachedValidClosest = false;
@@ -165,12 +165,12 @@ bool	btVoronoiSimplexSolver::updateClosestVectorAndPoints()
 
 				closestPtPointTriangle(p,a,b,c,m_cachedBC); 
 				m_cachedP1 = m_simplexPointsP[0] * m_cachedBC.m_barycentricCoords[0] + 
-				m_simplexPointsP[1] * m_cachedBC.m_barycentricCoords[1] + 
-				m_simplexPointsP[2] * m_cachedBC.m_barycentricCoords[2]; 
+					m_simplexPointsP[1] * m_cachedBC.m_barycentricCoords[1] + 
+					m_simplexPointsP[2] * m_cachedBC.m_barycentricCoords[2]; 
 
 				m_cachedP2 = m_simplexPointsQ[0] * m_cachedBC.m_barycentricCoords[0] + 
-				m_simplexPointsQ[1] * m_cachedBC.m_barycentricCoords[1] + 
-				m_simplexPointsQ[2] * m_cachedBC.m_barycentricCoords[2]; 
+					m_simplexPointsQ[1] * m_cachedBC.m_barycentricCoords[1] + 
+					m_simplexPointsQ[2] * m_cachedBC.m_barycentricCoords[2]; 
 
 				m_cachedV = m_cachedP1-m_cachedP2; 
 
@@ -292,9 +292,13 @@ bool btVoronoiSimplexSolver::inSimplex(const btVector3& w)
 #ifdef BT_USE_EQUAL_VERTEX_THRESHOLD
 		if ( m_simplexVectorW[i].distance2(w) <= m_equalVertexThreshold)
 #else
-		if (m_simplexVectorW[i] == w)
+		if( m_simplexVectorW[i] == w )
 #endif
+		{
 			found = true;
+			// OPTIMIZE_LOOP_WITH_BREAK
+			break;
+		}
 	}
 
 	//check in case lastW is already removed

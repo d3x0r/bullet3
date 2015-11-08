@@ -20,9 +20,9 @@ subject to the following restrictions:
 
 
 
-btScalar btNNCGConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
+btScalar btNNCGConstraintSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies,int numBodies,btPersistentManifold** manifoldPtr, int first_manifold, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
-	btScalar val = btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup( bodies,numBodies,manifoldPtr, numManifolds, constraints,numConstraints,infoGlobal,debugDrawer);
+	btScalar val = btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup( bodies,numBodies,manifoldPtr, first_manifold,numManifolds, constraints,numConstraints,infoGlobal,debugDrawer);
 
 	m_pNC.resizeNoInitialize(m_tmpSolverNonContactConstraintPool.size());
 	m_pC.resizeNoInitialize(m_tmpSolverContactConstraintPool.size());

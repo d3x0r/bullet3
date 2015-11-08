@@ -129,12 +129,12 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 	}
 
 
-	virtual	void	processIsland(btCollisionObject** bodies,int numBodies,btPersistentManifold**	manifolds,int numManifolds, int islandId)
+	virtual	void	processIsland(btCollisionObject** bodies,int numBodies,btPersistentManifold**	manifolds, int first_manifold, int numManifolds, int islandId)
 	{
 		if (islandId<0)
 		{
 			///we don't split islands, so all constraints/contact manifolds/bodies are passed into the solver regardless the island id
-			m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,&m_sortedConstraints[0],m_numConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
+			m_solver->solveGroup( bodies,numBodies,manifolds, first_manifold, numManifolds,&m_sortedConstraints[0],m_numConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
 		} else
 		{
 				//also add all non-contact constraints/joints for this island
@@ -162,7 +162,7 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 
 			if (m_solverInfo->m_minimumSolverBatchSize<=1)
 			{
-				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
+				m_solver->solveGroup( bodies,numBodies,manifolds, first_manifold, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
 			} else
 			{
 
@@ -189,7 +189,7 @@ struct InplaceSolverIslandCallback : public btSimulationIslandManager::IslandCal
 		btPersistentManifold** manifold = m_manifolds.size()?&m_manifolds[0]:0;
 		btTypedConstraint** constraints = m_constraints.size()?&m_constraints[0]:0;
 
-		m_solver->solveGroup( bodies,m_bodies.size(),manifold, m_manifolds.size(),constraints, m_constraints.size() ,*m_solverInfo,m_debugDrawer,m_dispatcher);
+		m_solver->solveGroup( bodies,m_bodies.size(),manifold, 0, m_manifolds.size(),constraints, m_constraints.size() ,*m_solverInfo,m_debugDrawer,m_dispatcher);
 		m_bodies.resize(0);
 		m_manifolds.resize(0);
 		m_constraints.resize(0);

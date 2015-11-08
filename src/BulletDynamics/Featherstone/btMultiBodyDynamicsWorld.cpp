@@ -278,7 +278,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 	}
 
 	
-	virtual	void	processIsland(btCollisionObject** bodies,int numBodies,btPersistentManifold**	manifolds,int numManifolds, int islandId)
+	virtual	void	processIsland(btCollisionObject** bodies,int numBodies,btPersistentManifold**	manifolds,int first_manifold, int numManifolds, int islandId)
 	{
 		if (islandId<0)
 		{
@@ -334,7 +334,7 @@ struct MultiBodyInplaceSolverIslandCallback : public btSimulationIslandManager::
 
 			if (m_solverInfo->m_minimumSolverBatchSize<=1)
 			{
-				m_solver->solveGroup( bodies,numBodies,manifolds, numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
+				m_solver->solveGroup( bodies,numBodies,manifolds, 0,numManifolds,startConstraint,numCurConstraints,*m_solverInfo,m_debugDrawer,m_dispatcher);
 			} else
 			{
 				

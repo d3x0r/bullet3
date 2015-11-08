@@ -750,6 +750,11 @@ public:
 		return m_el[r1][c1] * m_el[r2][c2] - m_el[r1][c2] * m_el[r2][c1];
 	}
 
+		const char *ToString( const char *leader );
+		const char *ToString( const char* leadin, const char *leader );
+
+		const char *ToString();
+
 	void	serialize(struct	btMatrix3x3Data& dataOut) const;
 
 	void	serializeFloat(struct	btMatrix3x3FloatData& dataOut) const;

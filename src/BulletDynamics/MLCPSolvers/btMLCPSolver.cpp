@@ -36,7 +36,7 @@ bool interleaveContactAndFriction = false;
 
 btScalar btMLCPSolver::solveGroupCacheFriendlySetup(btCollisionObject** bodies, int numBodiesUnUsed, btPersistentManifold** manifoldPtr, int numManifolds,btTypedConstraint** constraints,int numConstraints,const btContactSolverInfo& infoGlobal,btIDebugDraw* debugDrawer)
 {
-	btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup( bodies, numBodiesUnUsed, manifoldPtr, numManifolds,constraints,numConstraints,infoGlobal,debugDrawer);
+	btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup( bodies, numBodiesUnUsed, manifoldPtr, 0, numManifolds,constraints,numConstraints,infoGlobal,debugDrawer);
 
 	{
 		BT_PROFILE("gather constraint data");
