@@ -67,7 +67,7 @@ static btSimdScalar gResolveSingleConstraintRowGeneric_scalar_reference(btSolver
 	{
 		c.m_appliedImpulse = sum;
 	}
-	Dbg( "Constraint applied impulse is " << std::setprecision( 12 ) << c.m_appliedImpulse );
+	Dbg( "Constraint applied impulse is " << std::setprecision( 17 ) << c.m_appliedImpulse );
 	body1.internalApplyImpulse(c.m_contactNormal1*body1.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
 	body2.internalApplyImpulse(c.m_contactNormal2*body2.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
 
@@ -93,7 +93,7 @@ static btSimdScalar gResolveSingleConstraintRowLowerLimit_scalar_reference(btSol
 	{
 		c.m_appliedImpulse = sum;
 	}
-	Dbg( "Constraint applied impulse 2 is " << std::setprecision( 12 ) << c.m_appliedImpulse );
+	Dbg( "Constraint applied impulse 2 is " << std::setprecision( 17 ) << c.m_appliedImpulse );
 
 	body1.internalApplyImpulse(c.m_contactNormal1*body1.internalGetInvMass(), c.m_angularComponentA, deltaImpulse);
 	body2.internalApplyImpulse(c.m_contactNormal2*body2.internalGetInvMass(), c.m_angularComponentB, deltaImpulse);
@@ -482,7 +482,7 @@ void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 		solverBody->m_angularVelocity = rb->getAngularVelocity();
 		solverBody->m_externalForceImpulse = rb->getTotalForce()*rb->getInvMass()*timeStep;
 		solverBody->m_externalTorqueImpulse = rb->getTotalTorque()*rb->getInvInertiaTensorWorld()*timeStep ;
-
+		Dbg( "Setup external torque impule " << solverBody->m_externalTorqueImpulse.ToString() );
 	} else
 	{
 		solverBody->m_worldTransform.setIdentity();
@@ -611,6 +611,7 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 		btScalar velocityError =  desiredVelocity - rel_vel;
 		btScalar velocityImpulse = velocityError * solverConstraint.m_jacDiagABInv;
 		solverConstraint.m_rhs = velocityImpulse;
+		Dbg( "Constraint 1 m_rhs " << std::setprecision(17) << solverConstraint.m_rhs );
 		solverConstraint.m_rhsPenetration = 0.f;
 		solverConstraint.m_cfm = cfmSlip;
 		solverConstraint.m_lowerLimit = -solverConstraint.m_friction;
@@ -625,7 +626,7 @@ btSolverConstraint&	btSequentialImpulseConstraintSolver::addFrictionConstraint(c
 	solverConstraint.m_frictionIndex = frictionIndex;
 	setupFrictionConstraint(solverConstraint, normalAxis, solverBodyIdA, solverBodyIdB, cp, rel_pos1, rel_pos2,
 							colObj0, colObj1, relaxation, desiredVelocity, cfmSlip);
-	Dbg( "Setup Impulse2 = " << std::setprecision( 12 ) << solverConstraint.m_appliedImpulse );
+	Dbg( "Setup Impulse2 = " << std::setprecision( 17 ) << solverConstraint.m_appliedImpulse );
 	return solverConstraint;
 }
 
@@ -693,6 +694,7 @@ void btSequentialImpulseConstraintSolver::setupRollingFrictionConstraint(	btSolv
 		btSimdScalar velocityError =  desiredVelocity - rel_vel;
 		btSimdScalar	velocityImpulse = velocityError * btSimdScalar(solverConstraint.m_jacDiagABInv);
 		solverConstraint.m_rhs = velocityImpulse;
+		Dbg( "Constraint 2 m_rhs " << std::setprecision( 17 ) << solverConstraint.m_rhs );
 		solverConstraint.m_cfm = cfmSlip;
 		solverConstraint.m_lowerLimit = -solverConstraint.m_friction;
 		solverConstraint.m_upperLimit = solverConstraint.m_friction;
@@ -876,6 +878,7 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 					btVector3 externalForceImpulseB = bodyB->m_originalBody ? bodyB->m_externalForceImpulse: btVector3(0,0,0);
 					btVector3 externalTorqueImpulseB = bodyB->m_originalBody ?bodyB->m_externalTorqueImpulse : btVector3(0,0,0);
 
+					Dbg( "external torque impulses " << externalTorqueImpulseA.ToString() << externalTorqueImpulseB.ToString() );
 
 					btScalar vel1Dotn = solverConstraint.m_contactNormal1.dot(bodyA->m_linearVelocity+externalForceImpulseA)
 						+ solverConstraint.m_relpos1CrossNormal.dot(bodyA->m_angularVelocity+externalTorqueImpulseA);
@@ -910,12 +913,14 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 					{
 						//combine position and velocity into rhs
 						solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;//-solverConstraint.m_contactNormal1.dot(bodyA->m_externalForce*bodyA->m_invMass-bodyB->m_externalForce/bodyB->m_invMass)*solverConstraint.m_jacDiagABInv;
+						Dbg( "Constraint 3 m_rhs " << std::setprecision( 17 ) << solverConstraint.m_rhs );
 						solverConstraint.m_rhsPenetration = 0.f;
 
 					} else
 					{
 						//split position and velocity into rhs and m_rhsPenetration
 						solverConstraint.m_rhs = velocityImpulse;
+						Dbg( "Constraint 4 m_rhs " << std::setprecision( 17 ) << solverConstraint.m_rhs );
 						solverConstraint.m_rhsPenetration = penetrationImpulse;
 					}
 					solverConstraint.m_cfm = 0.f;
@@ -946,7 +951,7 @@ void btSequentialImpulseConstraintSolver::setFrictionConstraintImpulse( btSolver
 		if (infoGlobal.m_solverMode & SOLVER_USE_WARMSTARTING)
 		{
 			frictionConstraint1.m_appliedImpulse = cp.m_appliedImpulseLateral1 * infoGlobal.m_warmstartingFactor;
-			Dbg( "New Applied source is " << std::setprecision( 12 ) << cp.m_appliedImpulseLateral1 );
+			Dbg( "New Applied source is " << std::setprecision( 17 ) << cp.m_appliedImpulseLateral1 );
 			if (rb0)
 				bodyA->internalApplyImpulse(frictionConstraint1.m_contactNormal1*rb0->getInvMass()*rb0->getLinearFactor(),frictionConstraint1.m_angularComponentA,frictionConstraint1.m_appliedImpulse);
 			if (rb1)
@@ -1330,9 +1335,6 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 				if (constraints[i]->isEnabled())
 				{
-				}
-				if (constraints[i]->isEnabled())
-				{
 					constraints[i]->getInfo1(&info1);
 				} else
 				{
@@ -1466,6 +1468,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 
 							btVector3 externalForceImpulseB = bodyBPtr->m_originalBody ? bodyBPtr->m_externalForceImpulse : btVector3(0,0,0);
 							btVector3 externalTorqueImpulseB = bodyBPtr->m_originalBody ?bodyBPtr->m_externalTorqueImpulse : btVector3(0,0,0);
+							Dbg( "external torque2 impulses " << externalTorqueImpulseA.ToString() << externalTorqueImpulseB.ToString() );
 
 							btScalar vel1Dotn = solverConstraint.m_contactNormal1.dot(rbA.getLinearVelocity()+externalForceImpulseA)
 												+ solverConstraint.m_relpos1CrossNormal.dot(rbA.getAngularVelocity()+externalTorqueImpulseA);
@@ -1480,6 +1483,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 							btScalar	penetrationImpulse = positionalError*solverConstraint.m_jacDiagABInv;
 							btScalar	velocityImpulse = velocityError *solverConstraint.m_jacDiagABInv;
 							solverConstraint.m_rhs = penetrationImpulse+velocityImpulse;
+							Dbg( "Constraint 5 m_rhs " << std::setprecision( 17 ) << solverConstraint.m_rhs );
 							solverConstraint.m_appliedImpulse = 0.f;
 
 
@@ -1669,9 +1673,9 @@ btScalar btSequentialImpulseConstraintSolver::solveSingleIteration(int iteration
 						solveManifold.m_lowerLimit = -(solveManifold.m_friction*totalImpulse);
 						solveManifold.m_upperLimit = solveManifold.m_friction*totalImpulse;
 
-						Dbg( "PreFriction Impulse?" << std::setprecision( 12 ) << solveManifold.m_appliedImpulse );
+						Dbg( "PreFriction Impulse?" << std::setprecision( 17 ) << solveManifold.m_appliedImpulse );
 						resolveSingleConstraintRowGenericSIMD(m_tmpSolverBodyPool[solveManifold.m_solverBodyIdA],m_tmpSolverBodyPool[solveManifold.m_solverBodyIdB],solveManifold);
-						Dbg( "Friction Impulse?" << std::setprecision(12) << solveManifold.m_appliedImpulse );
+						Dbg( "Friction Impulse?" << std::setprecision(17) << solveManifold.m_appliedImpulse );
 					}
 				}
 
@@ -1844,7 +1848,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 		//	float f = m_tmpSolverContactFrictionConstraintPool[solveManifold.m_frictionIndex].m_appliedImpulse;
 			//	printf("pt->m_appliedImpulseLateral1 = %f\n", f);
 			pt->m_appliedImpulseLateral1 = m_tmpSolverContactFrictionConstraintPool[solveManifold.m_frictionIndex].m_appliedImpulse;
-			Dbg( "New manifold source is " << std::setprecision(12) << pt->m_appliedImpulseLateral1 << " from " << solveManifold.m_frictionIndex );
+			Dbg( "New manifold source is " << std::setprecision(17) << pt->m_appliedImpulseLateral1 << " from " << solveManifold.m_frictionIndex );
 			//printf("pt->m_appliedImpulseLateral1 = %f\n", pt->m_appliedImpulseLateral1);
 			if ((infoGlobal.m_solverMode & SOLVER_USE_2_FRICTION_DIRECTIONS))
 			{

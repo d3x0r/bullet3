@@ -1684,7 +1684,7 @@ const char *btVector3::ToString()
 {
 	std::ostringstream oss;
 	char_buf++; char_buf %= 16;
-	oss << "(" << std::setprecision( 12 ) << getX() << "," << std::setprecision( 12 ) << getY() << "," << std::setprecision( 12 ) << getZ() << ")";
+	oss << "(" << std::setprecision( 17 ) << getX() << "," << std::setprecision( 17 ) << getY() << "," << std::setprecision( 17 ) << getZ() << ")";
 	str[char_buf] = oss.str();
 	return last_result[char_buf] = str[char_buf].c_str();
 }

@@ -91,7 +91,7 @@ public:
 		m_contactBreakingThresholdSquared( contactBreakingThreshold*contactBreakingThreshold ),
 		m_contactProcessingThreshold(contactProcessingThreshold)
 	{
-		Dbg( "breaking contact threshold set to " << std::setprecision(12) << contactBreakingThreshold );
+		Dbg( "breaking contact threshold set to " << std::setprecision(17) << contactBreakingThreshold );
 
 	}
 
@@ -141,7 +141,7 @@ public:
 	void setContactBreakingThreshold(btScalar contactBreakingThreshold)
 	{
 		m_contactBreakingThreshold = contactBreakingThreshold;
-		Dbg( "breaking contact threshold reset to " << std::setprecision( 12 ) << contactBreakingThreshold );
+		Dbg( "breaking contact threshold reset to " << std::setprecision( 17 ) << contactBreakingThreshold );
 		m_contactBreakingThresholdSquared = contactBreakingThreshold*contactBreakingThreshold;
 	}
 
@@ -199,11 +199,6 @@ public:
 		m_pointCache[insertIndex].m_appliedImpulse = appliedImpulse;
 		m_pointCache[insertIndex].m_appliedImpulseLateral1 = appliedLateralImpulse1;
 		m_pointCache[insertIndex].m_appliedImpulseLateral2 = appliedLateralImpulse2;
-#ifdef INCLUDE_DUPLICATE_CODE
-		m_pointCache[insertIndex].m_appliedImpulse =  appliedImpulse;
-		m_pointCache[insertIndex].m_appliedImpulseLateral1 = appliedLateralImpulse1;
-		m_pointCache[insertIndex].m_appliedImpulseLateral2 = appliedLateralImpulse2;
-#endif
 
 		m_pointCache[insertIndex].m_lifeTime = lifeTime;
 #else

@@ -296,7 +296,6 @@ bool btVoronoiSimplexSolver::inSimplex(const btVector3& w)
 #endif
 		{
 			found = true;
-			// OPTIMIZE_LOOP_WITH_BREAK
 			break;
 		}
 	}

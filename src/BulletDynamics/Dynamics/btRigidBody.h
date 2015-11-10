@@ -336,6 +336,7 @@ public:
 			if (m_angularFactor)
 			{
 				applyTorqueImpulse(rel_pos.cross(impulse*m_linearFactor));
+				Dbg( "angular result " << m_angularVelocity.ToString() );
 			}
 		}
 	}
