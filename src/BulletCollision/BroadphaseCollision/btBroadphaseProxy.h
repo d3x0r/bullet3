@@ -20,7 +20,6 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedAllocator.h"
 
-
 /// btDispatcher uses these types
 /// IMPORTANT NOTE:The types are ordered polyhedral, implicit convex and concave
 /// to facilitate type checking
@@ -205,18 +204,9 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 	}
 	btBroadphasePair(btBroadphaseProxy& proxy0,btBroadphaseProxy& proxy1)
 	{
-
 		//keep them sorted, so the std::set operations work
-		if (proxy0.m_uniqueId < proxy1.m_uniqueId)
-        { 
-            m_pProxy0 = &proxy0; 
-            m_pProxy1 = &proxy1; 
-        }
-        else 
-        { 
-			m_pProxy0 = &proxy1; 
-            m_pProxy1 = &proxy0; 
-        }
+        m_pProxy0 = &proxy0; 
+        m_pProxy1 = &proxy1; 
 
 		m_algorithm = 0;
 		m_internalInfo1 = 0;

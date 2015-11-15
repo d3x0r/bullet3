@@ -6,7 +6,7 @@ btDiscreteDynamicsWorld* world;
 btRigidBody* fallingRigidBody;
 btRigidBody* fallingRigidBody2;
 
-void InitDefaultWorld( bool sloped )
+void InitDefaultWorld( bool sloped, bool box )
 {
 	{
 		btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -58,7 +58,11 @@ void InitDefaultWorld( bool sloped )
  	//-------------------------------------------------------
 
 	{
-		btCollisionShape* fallShape2 = new btSphereShape( 1 );
+		btCollisionShape* fallShape2;
+		if( box )
+			fallShape2 = new btBoxShape( btVector3::Zero );
+		else
+			fallShape2 = new btSphereShape( 1 );
 
 		btVector3 origin( sloped ? -34 : 0.25, 1, 0.25 );
 		btTransform* init = new btTransform( btQuaternion::Identity, origin );
@@ -81,7 +85,14 @@ void InitDefaultWorld( bool sloped )
 
 int main( int argc, char** argv )
 {
-	InitDefaultWorld( argc > 1 );
+	bool slope = false;
+	bool box = false;
+	for( int i = 1; i < argc; i++ )
+	{
+		if( strcmp( argv[i], "sloped" ) == 0 ) slope = true;
+		if( strcmp( argv[i], "box" ) == 0 ) box = true;
+	}
+	InitDefaultWorld( slope, box );
 
 	for( int i = 0; i < 300; i++ ) {
 		if( i == 198 )

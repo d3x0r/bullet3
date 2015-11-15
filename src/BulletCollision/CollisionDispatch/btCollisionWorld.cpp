@@ -1090,6 +1090,7 @@ struct btBridgedManifoldResult : public btManifoldResult
 		}
 		
 		btManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
+		Dbg( "add contact point " << pointA.ToString() << " and " << pointInWorld.ToString() );
 		newPt.m_positionWorldOnA = pointA;
 		newPt.m_positionWorldOnB = pointInWorld;
 		

@@ -343,7 +343,7 @@ void btSimulationIslandManager::buildIslands(btDispatcher* dispatcher,btCollisio
 				//filtering for response
 				if( dispatcher->needsResponse( colObj0, colObj1 ) )
 				{
-					Dbg( "Add a manifold" );
+					Dbg2( DbgManifolds, "Add a manifold" );
 					m_islandmanifold.push_back( manifold );
 				}
 			}

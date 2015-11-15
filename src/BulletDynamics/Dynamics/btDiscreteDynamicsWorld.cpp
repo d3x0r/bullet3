@@ -367,10 +367,10 @@ void	btDiscreteDynamicsWorld::synchronizeSingleMotionState(btRigidBody* body)
 				(m_latencyMotionStateInterpolation && m_fixedTimeStep) ? m_localTime - m_fixedTimeStep : m_localTime*body->getHitFraction(),
 				interpolatedTransform);
 			btTransform t = body->getInterpolationWorldTransform();
-			Dbg( t.ToString( "old int orn\t", "\t\t", "old int org\t" ) );
+			Dbg2( PredictedTransform, t.ToString( "old int orn\t", "\t\t", "old int org\t" ) );
 			btVector3 tmp = body->getInterpolationAngularVelocity();
-			Dbg( "Sync transform state " << tmp.ToString() );
-			Dbg( interpolatedTransform.ToString( "inter orient\t", "\t\t", "inter origin\t" ) );
+			Dbg2( PredictedTransform, "Sync transform state " << tmp.ToString() );
+			Dbg2( PredictedTransform, interpolatedTransform.ToString( "inter orient\t", "\t\t", "inter origin\t" ) );
 			body->getMotionState()->setWorldTransform(interpolatedTransform);
 		}
 	}
@@ -1078,7 +1078,7 @@ void	btDiscreteDynamicsWorld::integrateTransforms(btScalar timeStep)
 				}
 			}
 
-			Dbg( predictedTrans.ToString( "predicted orient\t", "\t\t\t", "predicted origin\t" ) );
+			Dbg2( PredictedTransform, predictedTrans.ToString( "predicted orient\t", "\t\t\t", "predicted origin\t" ) );
 			body->proceedToTransform( predictedTrans);
 
 		}

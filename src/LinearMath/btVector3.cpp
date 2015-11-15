@@ -19,6 +19,8 @@
 #define BT_USE_SSE_IN_API
 #endif
 
+// for debugging flags option
+#define DEFINE_STATIC_GLOBALS
 
 #include "btVector3.h"
 #include "btQuaternion.h"
@@ -1680,11 +1682,13 @@ const char *last_result[16];
 
 static std::string str[16];
 
-const char *btVector3::ToString()
+const char *btVector3::ToString() const
 {
 	std::ostringstream oss;
 	char_buf++; char_buf %= 16;
-	oss << "(" << std::setprecision( 17 ) << getX() << "," << std::setprecision( 17 ) << getY() << "," << std::setprecision( 17 ) << getZ() << ")";
+	oss << "(" << std::setprecision( 17 ) << ((m_floats[0]==-0)?0:m_floats[0]) 
+		<< "," << std::setprecision( 17 ) << ((m_floats[1] == -0) ? 0 : m_floats[1]) 
+		<< "," << std::setprecision( 17 ) << ((m_floats[2] == -0) ? 0 : m_floats[2]) << ")";
 	str[char_buf] = oss.str();
 	return last_result[char_buf] = str[char_buf].c_str();
 }
@@ -1720,7 +1724,7 @@ const char * btTransform::ToString()
 {
 	std::ostringstream oss;
 	char_buf++; char_buf %= 16;
-	oss << m_basis.ToString() << "\n" << m_origin.ToString();
+	oss << "Orientation: " << m_basis.ToString() << "\n Origin: " << m_origin.ToString();
 	str[char_buf] = oss.str();
 	return last_result[char_buf] = str[char_buf].c_str();
 }

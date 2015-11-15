@@ -15,5 +15,6 @@ ADD_TEST( test-002 )
 ADD_TEST( test-003 )
 ADD_TEST( test-004 )
 ADD_TEST( test-005 )
+ADD_TEST( test-006 )
 ADD_TEST( MathTest-001 )
 

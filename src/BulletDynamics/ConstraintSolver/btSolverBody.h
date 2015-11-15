@@ -108,6 +108,7 @@ operator+(const btSimdScalar& v1, const btSimdScalar& v2)
 ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 {
 	BT_DECLARE_ALIGNED_ALLOCATOR();
+	bool			modified;
 	btTransform		m_worldTransform;
 	btVector3		m_deltaLinearVelocity;
 	btVector3		m_deltaAngularVelocity;
@@ -167,6 +168,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 		{
 			m_deltaLinearVelocity += linearComponent*impulseMagnitude*m_linearFactor;
 			m_deltaAngularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
+			Dbg( "apply impulse delta linear velocity is " << m_deltaLinearVelocity.ToString() );
 		}
 	}
 
@@ -258,6 +260,7 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 		{
 			m_deltaLinearVelocity += linearComponent*impulseMagnitude*m_linearFactor;
 			m_deltaAngularVelocity += angularComponent*(impulseMagnitude*m_angularFactor);
+			Dbg( "apply impulse delta linear velocity is " << m_deltaLinearVelocity.ToString() );
 		}
 	}
 		
@@ -288,7 +291,9 @@ ATTRIBUTE_ALIGNED16 (struct)	btSolverBody
 			btTransform newTransform;
 			if (m_pushVelocity[0]!=0.f || m_pushVelocity[1]!=0 || m_pushVelocity[2]!=0 || m_turnVelocity[0]!=0.f || m_turnVelocity[1]!=0 || m_turnVelocity[2]!=0)
 			{
-			//	btQuaternion orn = m_worldTransform.getRotation();
+				modified = true;
+				Dbg2( PredictedTransform, "To Push Solver with " << m_pushVelocity.ToString() << " " << (m_turnVelocity*splitImpulseTurnErp).ToString() );
+				//	btQuaternion orn = m_worldTransform.getRotation();
 				btTransformUtil::integrateTransform(m_worldTransform,m_pushVelocity,m_turnVelocity*splitImpulseTurnErp,timeStep,newTransform);
 				m_worldTransform = newTransform;
 			}

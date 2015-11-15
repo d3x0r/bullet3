@@ -104,7 +104,7 @@ btPersistentManifold*	btCollisionDispatcher::getNewManifold(const btCollisionObj
 	}
 	btPersistentManifold* manifold = new(mem) btPersistentManifold (body0,body1,0,contactBreakingThreshold,contactProcessingThreshold);
 	manifold->m_index1a = m_manifoldsPtr.size();
-	Dbg( "add a manifold (getNewManifold)" );
+	Dbg2( DbgManifolds, "add a manifold (getNewManifold)" );
 
 	m_manifoldsPtr.push_back(manifold);
 

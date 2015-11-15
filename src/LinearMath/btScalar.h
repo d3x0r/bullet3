@@ -21,13 +21,26 @@ subject to the following restrictions:
 //Aligned data types not supported in managed code
 #pragma unmanaged
 #endif
+#ifdef _DEBUG
 #define DEBUG_INLINE
+#endif
 
+enum DbgFlags {
+	DbgManifolds = 1,
+	PredictedTransform = 2,
+};
+#ifndef DEFINE_STATIC_GLOBALS
+extern
+#endif
+	DbgFlags LoggingFlags;
 #ifdef DEBUG_INLINE
 #include <iostream>
+
 #define Dbg(a)  std::cout << a << std::endl
+#define Dbg2(f,a)  if( (f)&LoggingFlags) std::cout << a << std::endl
 #else
 #define Dbg(a)  
+#define Dbg2(f,a)
 #endif
 
 #include <math.h>

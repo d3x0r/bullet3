@@ -324,6 +324,11 @@ void	btSequentialImpulseConstraintSolver::resolveSplitPenetrationImpulseCacheFri
 			{
 				c.m_appliedPushImpulse = sum;
 			}
+			if( !c.m_contactNormal1.isZero() && !c.m_angularComponentA.isZero() )
+				Dbg( "push impulse setup from " << std::setprecision(17) << deltaImpulse << " * " << c.m_contactNormal1.ToString() << " and " << c.m_angularComponentA.ToString() );
+			if( !c.m_contactNormal2.isZero() && !c.m_angularComponentB.isZero() )
+				Dbg( "push impulse setup from " << std::setprecision( 17 ) << deltaImpulse << " * " << c.m_contactNormal2.ToString() << " and " << c.m_angularComponentB.ToString() );
+
 			body1.internalApplyPushImpulse(c.m_contactNormal1*body1.internalGetInvMass(),c.m_angularComponentA,deltaImpulse);
 			body2.internalApplyPushImpulse(c.m_contactNormal2*body2.internalGetInvMass(),c.m_angularComponentB,deltaImpulse);
         }
@@ -473,6 +478,7 @@ void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 
 	if (rb)
 	{
+		solverBody->modified = false;
 		solverBody->m_worldTransform = rb->getWorldTransform();
 		solverBody->internalSetInvMass(btVector3(rb->getInvMass(),rb->getInvMass(),rb->getInvMass())*rb->getLinearFactor());
 		solverBody->m_originalBody = rb;
@@ -485,6 +491,7 @@ void	btSequentialImpulseConstraintSolver::initSolverBody(btSolverBody* solverBod
 		Dbg( "Setup external torque impule " << solverBody->m_externalTorqueImpulse.ToString() );
 	} else
 	{
+		solverBody->modified = false;
 		solverBody->m_worldTransform.setIdentity();
 		solverBody->internalSetInvMass(btVector3(0,0,0));
 		solverBody->m_originalBody = 0;
@@ -592,6 +599,7 @@ void btSequentialImpulseConstraintSolver::setupFrictionConstraint(btSolverConstr
 			denom1 = body1->getInvMass() + normalAxis.dot(vec);
 		}
 		btScalar denom = relaxation/(denom0+denom1);
+		Dbg( "m_jacDiagABInv 1 set to " << std::setprecision(17) << denom );
 		solverConstraint.m_jacDiagABInv = denom;
 	}
 
@@ -675,6 +683,7 @@ void btSequentialImpulseConstraintSolver::setupRollingFrictionConstraint(	btSolv
 		btScalar sum = 0;
 		sum += iMJaA.dot(solverConstraint.m_relpos1CrossNormal);
 		sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
+		Dbg( "m_jacDiagABInv 2 set to " << std::setprecision( 17 ) << (btScalar( 1. ) / sum) );
 		solverConstraint.m_jacDiagABInv = btScalar(1.)/sum;
 	}
 
@@ -808,6 +817,7 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 #endif //COMPUTE_IMPULSE_DENOM
 
 					btScalar denom = relaxation/(denom0+denom1);
+					Dbg( "m_jacDiagABInv 3 set to " << std::setprecision( 17 ) << (denom) );
 					solverConstraint.m_jacDiagABInv = denom;
 				}
 
@@ -815,6 +825,7 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 				{
 					solverConstraint.m_contactNormal1 = cp.m_normalWorldOnB;
 					solverConstraint.m_relpos1CrossNormal = torqueAxis0;
+					Dbg( "Torque Axis to relpos1 " << solverConstraint.m_relpos1CrossNormal.ToString() );
 				} else
 				{
 					solverConstraint.m_contactNormal1.setZero();
@@ -824,6 +835,8 @@ void btSequentialImpulseConstraintSolver::setupContactConstraint(btSolverConstra
 				{
 					solverConstraint.m_contactNormal2 = -cp.m_normalWorldOnB;
 					solverConstraint.m_relpos2CrossNormal = -torqueAxis1;
+					Dbg( "Torque Axis to relpos2 " << solverConstraint.m_relpos2CrossNormal.ToString() );
+
 				}else
 				{
 					solverConstraint.m_contactNormal2.setZero();
@@ -1005,7 +1018,7 @@ void	btSequentialImpulseConstraintSolver::convertContact(btPersistentManifold* m
 		return;
 
 	int rollingFriction=1;
-	Dbg( "Manifold cache points " << manifold->getNumContacts() );
+	Dbg2( DbgManifolds, "Manifold cache points " << manifold->getNumContacts() );
 	for (int j=0;j<manifold->getNumContacts();j++)
 	{
 
@@ -1456,6 +1469,7 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlySetup(btCol
 							sum += iMJaB.dot(solverConstraint.m_relpos2CrossNormal);
 							btScalar fsum = btFabs(sum);
 							btAssert(fsum > SIMD_EPSILON);
+							Dbg( "m_jacDiagABInv 4 set to " << std::setprecision( 17 ) << (fsum>SIMD_EPSILON ? btScalar( 1. ) / sum : 0.f) );
 							solverConstraint.m_jacDiagABInv = fsum>SIMD_EPSILON?btScalar(1.)/sum : 0.f;
 						}
 
@@ -1884,26 +1898,30 @@ btScalar btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(btCo
 
 	for ( i=0;i<m_tmpSolverBodyPool.size();i++)
 	{
-		btRigidBody* body = m_tmpSolverBodyPool[i].m_originalBody;
+		btSolverBody* solverBody = &m_tmpSolverBodyPool[i];
+		btRigidBody* body = solverBody->m_originalBody;
 		if (body)
 		{
 			if (infoGlobal.m_splitImpulse)
-				m_tmpSolverBodyPool[i].writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);
+				solverBody->writebackVelocityAndTransform(infoGlobal.m_timeStep, infoGlobal.m_splitImpulseTurnErp);
 			else
-				m_tmpSolverBodyPool[i].writebackVelocity();
+				solverBody->writebackVelocity();
 
-			m_tmpSolverBodyPool[i].m_originalBody->setLinearVelocity(
-				m_tmpSolverBodyPool[i].m_linearVelocity+
-				m_tmpSolverBodyPool[i].m_externalForceImpulse);
+			solverBody->m_originalBody->setLinearVelocity(
+				solverBody->m_linearVelocity+
+				solverBody->m_externalForceImpulse);
 
-			m_tmpSolverBodyPool[i].m_originalBody->setAngularVelocity(
-				m_tmpSolverBodyPool[i].m_angularVelocity+
-				m_tmpSolverBodyPool[i].m_externalTorqueImpulse);
+			solverBody->m_originalBody->setAngularVelocity(
+				solverBody->m_angularVelocity+
+				solverBody->m_externalTorqueImpulse);
 
-			if (infoGlobal.m_splitImpulse)
-				m_tmpSolverBodyPool[i].m_originalBody->setWorldTransform(m_tmpSolverBodyPool[i].m_worldTransform);
+			if( infoGlobal.m_splitImpulse && solverBody->modified )
+			{
+				Dbg2( PredictedTransform, "Solver body transform is " << solverBody->m_worldTransform.ToString() );
+				solverBody->m_originalBody->setWorldTransform( solverBody->m_worldTransform );
+			}
 
-			m_tmpSolverBodyPool[i].m_originalBody->setCompanionId(-1);
+			solverBody->m_originalBody->setCompanionId(-1);
 		}
 	}
 

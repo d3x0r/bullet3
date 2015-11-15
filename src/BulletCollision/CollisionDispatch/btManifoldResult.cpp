@@ -101,11 +101,11 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 	}
 
 	btManifoldPoint newPt(localA,localB,normalOnBInWorld,depth);
+	Dbg( "add contact point " << pointA.ToString() << " and " << pointInWorld.ToString() );
 	newPt.m_positionWorldOnA = pointA;
 	newPt.m_positionWorldOnB = pointInWorld;
 	
 	int insertIndex = m_manifoldPtr->getCacheEntry(newPt);
-	Dbg( "new point goes into cache at " << insertIndex );
 	newPt.m_combinedFriction = calculateCombinedFriction(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
 	newPt.m_combinedRestitution = calculateCombinedRestitution(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());
 	newPt.m_combinedRollingFriction = calculateCombinedRollingFriction(m_body0Wrap->getCollisionObject(),m_body1Wrap->getCollisionObject());

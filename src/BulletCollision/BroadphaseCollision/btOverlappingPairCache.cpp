@@ -20,14 +20,19 @@ subject to the following restrictions:
 #include "btDispatcher.h"
 #include "btCollisionAlgorithm.h"
 #include "LinearMath/btAabbUtil2.h"
-
+#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
+#include "BulletCollision/CollisionShapes/btCollisionShape.h"
+#include "BulletDynamics/Dynamics/btRigidBody.h"
 #include <stdio.h>
+
 
 int	gOverlappingPairs = 0;
 
 int gRemovePairs =0;
 int gAddedPairs =0;
 int gFindPairs =0;
+
+#define ORDER_OP >
 
 
 
@@ -128,15 +133,36 @@ void	btHashedOverlappingPairCache::removeOverlappingPairsContainingProxy(btBroad
 	processAllOverlappingPairs(&removeCallback,dispatcher);
 }
 
+void Sort( btBroadphaseProxy *&proxy0, btBroadphaseProxy *&proxy1 )
+{
+	bool swapped = false;
+	btRigidBody* body0 = (((btCollisionObject*)proxy0->m_clientObject)->getInternalType() == 2) ? (btRigidBody*)proxy0->m_clientObject : (btRigidBody*)NULL;
+	btRigidBody* body1 = (((btCollisionObject*)proxy1->m_clientObject)->getInternalType() == 2) ? (btRigidBody*)proxy1->m_clientObject  : (btRigidBody*)NULL;
+	if( body0 != NULL && body1 != NULL )
+		if( body0->getInvMass() < body1->getInvMass() )
+		{
+			btSwap( proxy0, proxy1 );
+			swapped = true;
+		}
+	if( !swapped && ( body0->getCollisionShape()->getShapeType() < body1->getCollisionShape()->getShapeType() ) )
+	{
+		btSwap( proxy0, proxy1 );
+		swapped = true;
+	}
+	//if( !swapped &&
+	//	proxy0->m_uniqueId ORDER_OP proxy1->m_uniqueId )
+	//	btSwap( proxy0, proxy1 );
 
+}
 
 
 
 btBroadphasePair* btHashedOverlappingPairCache::findPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1)
 {
 	gFindPairs++;
-	if(proxy0->m_uniqueId>proxy1->m_uniqueId) 
-		btSwap(proxy0,proxy1);
+	Sort( proxy0, proxy1 );
+	//if(proxy0->m_uniqueId ORDER_OP proxy1->m_uniqueId) 
+	//	btSwap(proxy0,proxy1);
 	int proxyId1 = proxy0->getUid();
 	int proxyId2 = proxy1->getUid();
 
@@ -212,8 +238,9 @@ void	btHashedOverlappingPairCache::growTables()
 
 btBroadphasePair* btHashedOverlappingPairCache::internalAddPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1)
 {
-	if(proxy0->m_uniqueId>proxy1->m_uniqueId) 
-		btSwap(proxy0,proxy1);
+	Sort( proxy0, proxy1 );
+	//if(proxy0->m_uniqueId ORDER_OP proxy1->m_uniqueId)
+	//	btSwap(proxy0,proxy1);
 	int proxyId1 = proxy0->getUid();
 	int proxyId2 = proxy1->getUid();
 
@@ -272,8 +299,9 @@ btBroadphasePair* btHashedOverlappingPairCache::internalAddPair(btBroadphaseProx
 void* btHashedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1,btDispatcher* dispatcher)
 {
 	gRemovePairs++;
-	if(proxy0->m_uniqueId>proxy1->m_uniqueId) 
-		btSwap(proxy0,proxy1);
+	Sort( proxy0, proxy1 );
+	//if(proxy0->m_uniqueId ORDER_OP proxy1->m_uniqueId)
+	//	btSwap(proxy0,proxy1);
 	int proxyId1 = proxy0->getUid();
 	int proxyId2 = proxy1->getUid();
 
@@ -383,7 +411,8 @@ void	btHashedOverlappingPairCache::processAllOverlappingPairs(btOverlapCallback*
 	{
 	
 		btBroadphasePair* pair = &m_overlappingPairArray[i];
-		Dbg( "Process pair " << i );
+		Dbg( "Process pair " << i << "  " << ((btCollisionObject*)pair->m_pProxy1->m_clientObject)->getCollisionShape()->getName()
+			<< " and " << ((btCollisionObject*)pair->m_pProxy0->m_clientObject)->getCollisionShape()->getName() );
 		if (callback->processOverlap(*pair))
 		{
 			removeOverlappingPair(pair->m_pProxy0,pair->m_pProxy1,dispatcher);
@@ -431,6 +460,8 @@ void*	btSortedOverlappingPairCache::removeOverlappingPair(btBroadphaseProxy* pro
 {
 	if (!hasDeferredRemoval())
 	{
+		if( proxy0->m_uniqueId ORDER_OP proxy1->m_uniqueId )
+			btSwap( proxy0, proxy1 );
 		btBroadphasePair findPair(*proxy0,*proxy1);
 
 		int findIndex = m_overlappingPairArray.findLinearSearch(findPair);
@@ -463,6 +494,8 @@ btBroadphasePair*	btSortedOverlappingPairCache::addOverlappingPair(btBroadphaseP
 {
 	//don't add overlap with own
 	btAssert(proxy0 != proxy1);
+	if( proxy0->m_uniqueId ORDER_OP proxy1->m_uniqueId )
+		btSwap( proxy0, proxy1 );
 
 	if (!needsBroadphaseCollision(proxy0,proxy1))
 		return 0;
@@ -487,6 +520,8 @@ btBroadphasePair*	btSortedOverlappingPairCache::addOverlappingPair(btBroadphaseP
 {
 	if (!needsBroadphaseCollision(proxy0,proxy1))
 		return 0;
+	if( proxy0->m_uniqueId ORDER_OP proxy1->m_uniqueId )
+		btSwap( proxy0, proxy1 );
 
 	btBroadphasePair tmpPair(*proxy0,*proxy1);
 	int findIndex = m_overlappingPairArray.findLinearSearch(tmpPair);

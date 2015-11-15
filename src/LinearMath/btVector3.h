@@ -755,7 +755,7 @@ public:
     }
 
 	public:
-		const char *ToString();
+		const char *ToString() const;
 };
 
 /**@brief Return the sum of two vectors (Point symantics)*/

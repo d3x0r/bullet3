@@ -373,24 +373,24 @@ void btCompoundCompoundCollisionAlgorithm::processCollision (const btCollisionOb
 					const btCollisionShape* childShape0 = 0;
 					
 					btTransform	newChildWorldTrans0;
-					btTransform	orgInterpolationTrans0;
+					//btTransform	orgInterpolationTrans0;
 					childShape0 = compoundShape0->getChildShape(pairs[i].m_indexA);
 					orgTrans0 = col0ObjWrap->getWorldTransform();
-					orgInterpolationTrans0 = col0ObjWrap->getWorldTransform();
+					//orgInterpolationTrans0 = col0ObjWrap->getWorldTransform();
 					const btTransform& childTrans0 = compoundShape0->getChildTransform(pairs[i].m_indexA);
 					newChildWorldTrans0 = orgTrans0*childTrans0 ;
 					childShape0->getAabb(newChildWorldTrans0,aabbMin0,aabbMax0);
 				}
 
 				{
-					btTransform	orgInterpolationTrans1;
+					//btTransform	orgInterpolationTrans1;
 					const btCollisionShape* childShape1 = 0;
 					btTransform	orgTrans1;
 					btTransform	newChildWorldTrans1;
 
 					childShape1 = compoundShape1->getChildShape(pairs[i].m_indexB);
 					orgTrans1 = col1ObjWrap->getWorldTransform();
-					orgInterpolationTrans1 = col1ObjWrap->getWorldTransform();
+					//orgInterpolationTrans1 = col1ObjWrap->getWorldTransform();
 					const btTransform& childTrans1 = compoundShape1->getChildTransform(pairs[i].m_indexB);
 					newChildWorldTrans1 = orgTrans1*childTrans1 ;
 					childShape1->getAabb(newChildWorldTrans1,aabbMin1,aabbMax1);

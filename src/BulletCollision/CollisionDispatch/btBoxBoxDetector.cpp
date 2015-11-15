@@ -345,7 +345,7 @@ int dBoxBox2 (const btVector3& p1, const dMatrix3 R1,
     } \
   }
 
-  btScalar fudge2 (1.0e-5f);
+  btScalar fudge2 (1.0e-5);
 
   Q11 += fudge2;
   Q12 += fudge2;
